@@ -1,68 +1,31 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Gamemode : MonoBehaviour
 {
-    public int boxCount;
-    public float bc_Time;
-    bool gameover;
-    bool gameClear;
+    public static Gamemode sgtn;
 
-    public Text gameTime;
-    string gameTimeText;
+    bool isStart = false;
 
-    public TextMeshProUGUI fallinBox;
-    public int finishBox = 36;
-
-    public GameObject restart_ui;
-    public GameObject success_ui;
-
-    void Start()
+    void Awake()
     {
-        restart_ui.SetActive(false); // SafeCode
-        success_ui.SetActive(false); // SafeCode
+        if (sgtn == null)
+            sgtn = this;
     }
 
-    void Update()
+    public bool IsStart()
     {
-        if (!gameover)
-            bc_Time += Time.deltaTime;
-
-        gameTimeText = bc_Time.ToString("F2"); // string foramt: "Fn" -> 0.00... (deciaml point * n)
-        gameTime.text = "Time: " + gameTimeText;
-
-        fallinBox.text = "»óÀÚ: " + boxCount + " / " + finishBox;
+        return isStart;
     }
 
-    void OnTriggerEnter(Collider obj)
+    public void GameStart()
     {
-        if (obj.CompareTag("Box"))
-        {
-            boxCount++;
-            Debug.Log("BoxCount: " + boxCount);
-        }
-        if ((obj.CompareTag("Player") ||
-            obj.CompareTag("UniqueBox")) &
-            gameClear == false)
-        {
-            GameOver();
-        }
-        else if (boxCount >= finishBox & gameover == false)
-        {
-            GameClear();
-        }
+        isStart = true;
     }
 
-    void GameOver()
+    public void ReStartScene()
     {
-        gameover = true;
-        restart_ui.SetActive(true);
-    }
-
-    void GameClear()
-    {
-        gameClear = true;
-        success_ui.SetActive(true);
+        Scene nowScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(nowScene.name);
     }
 }

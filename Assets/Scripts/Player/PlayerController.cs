@@ -15,7 +15,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Move();
-        Move2(); // Update 함수에서 프레임마다 실행시킵니다.
+        if (Gamemode.sgtn.IsStart())
+            Move2(); // Update 함수에서 프레임마다 실행시킵니다.
     }
 
     void LateUpdate()
