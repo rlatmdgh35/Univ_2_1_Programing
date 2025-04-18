@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Move();
-        if (Gamemode.sgtn.IsStart())
+        if (Gamemode.sgtn.IsStart() & Gamemode.sgtn.IsEndGame() == false)
             Move2(); // Update 함수에서 프레임마다 실행시킵니다.
     }
 

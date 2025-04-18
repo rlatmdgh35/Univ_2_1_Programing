@@ -6,7 +6,7 @@ public class FallCheck : MonoBehaviour
 {
     public int boxCount;
     public float bc_Time;
-    bool gameover;
+    bool gameOver;
     bool gameClear;
 
     public Text gameTime;
@@ -17,6 +17,8 @@ public class FallCheck : MonoBehaviour
 
     public GameObject restart_ui;
     public GameObject success_ui;
+    public GameObject endTime_ui;
+    public GameObject newRecord_ui;
 
     void Start()
     {
@@ -26,7 +28,10 @@ public class FallCheck : MonoBehaviour
 
     void Update()
     {
-        if (!gameover & Gamemode.sgtn.IsStart())
+        if (endTime_ui == null)
+            Debug.Log("Null");
+
+        if (!gameOver & Gamemode.sgtn.IsStart() & Gamemode.sgtn.IsEndGame() == false)
         {
             bc_Time += Time.deltaTime;
 
@@ -42,7 +47,6 @@ public class FallCheck : MonoBehaviour
         if (obj.CompareTag("Box"))
         {
             boxCount++;
-            Debug.Log("BoxCount: " + boxCount);
         }
         if ((obj.CompareTag("Player") ||
             obj.CompareTag("UniqueBox")) &
@@ -50,21 +54,35 @@ public class FallCheck : MonoBehaviour
         {
             GameOver();
         }
-        else if (boxCount >= finishBox & gameover == false)
+        else if (boxCount >= finishBox & gameOver == false)
         {
             GameClear();
+
+            float highScore = PlayerPrefs.GetFloat(GameInfoData.nowScene + "_HighScore", 0);
+            if (bc_Time < highScore || highScore == 0)
+            {
+                newRecord_ui.SetActive(true);
+                ScoreManager.SaveTimeData(bc_Time);
+                TextMeshProUGUI tmp = newRecord_ui.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+                tmp.text += bc_Time.ToString("F2");
+                endTime_ui.SetActive(false);
+            }
         }
     }
 
     void GameOver()
     {
-        gameover = true;
+        gameOver = true;
         restart_ui.SetActive(true);
+        Gamemode.sgtn.GameEnd();
     }
 
     void GameClear()
     {
         gameClear = true;
         success_ui.SetActive(true);
+        endTime_ui.GetComponent<TextMeshProUGUI>().text = gameTimeText;
+
+        Gamemode.sgtn.GameEnd();
     }
 }
