@@ -40,8 +40,9 @@ public class Gamemode : MonoBehaviour
         SceneManager.LoadScene(nowScene.name);
     }
 
-    public void Load_Scene(string sceneName)
+    public void Load_NextScene()
     {
-        SceneManager.LoadScene(sceneName);
+        GameInfoData.Load_NextScene();
     }
+
 }

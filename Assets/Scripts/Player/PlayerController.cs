@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
     public int hp;
     public int speed;
     public int jumpValue;
+    bool isJumping;
+    bool isStand;
     int power;
     int damage;
 
@@ -16,7 +18,15 @@ public class PlayerController : MonoBehaviour
     {
         // Move();
         if (Gamemode.sgtn.IsStart() & Gamemode.sgtn.IsEndGame() == false)
-            Move2(); // Update 함수에서 프레임마다 실행시킵니다.
+        {
+            Move2();
+
+            if (Input.GetKeyDown(KeyCode.Space) && isJumping && isStand)
+            {
+                isStand = false;
+                GetComponent<Rigidbody>().AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
+            }
+        }
     }
 
     void LateUpdate()
@@ -26,6 +36,16 @@ public class PlayerController : MonoBehaviour
         ptc_move.transform.rotation = Quaternion.LookRotation(-transform.forward);
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isStand = true;
+            Debug.Log("점프가능");
+        }
+    }
+
+    /*
     void Move()
     {
         if (Input.GetKey(KeyCode.W))
@@ -53,6 +73,7 @@ public class PlayerController : MonoBehaviour
             transform.Translate(Vector3.up * speed * Time.deltaTime);
         }
     }
+    */
 
     void Move2()
     {
@@ -75,5 +96,16 @@ public class PlayerController : MonoBehaviour
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
         }
+    }
+
+    public void JumpingMode(bool type)
+    {
+        isJumping = type;
+        Invoke("JumpReset", 10f);
+    }
+
+    void JumpReset()
+    {
+        isJumping = false;
     }
 }

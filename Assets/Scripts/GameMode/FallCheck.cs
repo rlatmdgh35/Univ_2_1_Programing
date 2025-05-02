@@ -12,8 +12,9 @@ public class FallCheck : MonoBehaviour
     public Text gameTime;
     string gameTimeText;
 
-    public TextMeshProUGUI fallinBox;
-    public int finishBox = 36;
+    public TextMeshProUGUI fallinBoxTMP;
+    public GameObject finishBoxes;
+    int finishBoxCount;
 
     public GameObject restart_ui;
     public GameObject success_ui;
@@ -24,6 +25,9 @@ public class FallCheck : MonoBehaviour
     {
         restart_ui.SetActive(false); // SafeCode
         success_ui.SetActive(false); // SafeCode
+
+        finishBoxCount = finishBoxes.transform.childCount;
+
     }
 
     void Update()
@@ -38,23 +42,23 @@ public class FallCheck : MonoBehaviour
             gameTimeText = bc_Time.ToString("F2"); // string foramt: "Fn" -> 0.00... (deciaml point * n)
             gameTime.text = "Time: " + gameTimeText;
 
-            fallinBox.text = "상자: " + boxCount + " / " + finishBox;
+            fallinBoxTMP.text = "상자: " + boxCount + " / " + finishBoxCount;
         }
     }
 
-    void OnTriggerEnter(Collider obj)
+    void OnTriggerEnter(Collider other)
     {
-        if (obj.CompareTag("Box"))
+        if (other.CompareTag("Box"))
         {
             boxCount++;
         }
-        if ((obj.CompareTag("Player") ||
-            obj.CompareTag("UniqueBox")) &
+        if ((other.CompareTag("Player") ||
+            other.CompareTag("UniqueBox")) &
             gameClear == false)
         {
             GameOver();
         }
-        else if (boxCount >= finishBox & gameOver == false)
+        else if (boxCount >= finishBoxCount & gameOver == false)
         {
             GameClear();
 
@@ -62,7 +66,7 @@ public class FallCheck : MonoBehaviour
             if (bc_Time < highScore || highScore == 0)
             {
                 newRecord_ui.SetActive(true);
-                ScoreManager.SaveTimeData(bc_Time);
+                GameInfoData.SaveTimeData(bc_Time);
                 TextMeshProUGUI tmp = newRecord_ui.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
                 tmp.text += bc_Time.ToString("F2");
                 endTime_ui.SetActive(false);

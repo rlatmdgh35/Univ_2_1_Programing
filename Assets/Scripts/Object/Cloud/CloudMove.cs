@@ -3,15 +3,16 @@ using UnityEngine;
 public class CloudMove : MonoBehaviour
 {
     public float speed = 2f;
-    public Transform target;
+    Transform target;
 
     void Start()
     {
-        GameObject[] objs = FindObjectsOfType<GameObject>();
-        for (int i = 0; i < objs.Length; i++)
+        target = GameObject.Find("CloudEndPoint").transform;
+
+        if (target == null)
         {
-            if (objs[i].CompareTag("CloudEndTarget"))
-                target = objs[i].transform;
+            Debug.LogError("target is null");
+            return;
         }
     }
 
