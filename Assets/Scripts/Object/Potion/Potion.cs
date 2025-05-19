@@ -3,6 +3,7 @@ using UnityEngine;
 public class Potion : MonoBehaviour
 {
     public PlayerController playerController;
+    public ItemSlotUI itemSlotUI;
 
     void OnTriggerEnter(Collider other)
     {
@@ -10,6 +11,8 @@ public class Potion : MonoBehaviour
         {
             playerController.JumpingMode(true);
             Destroy(gameObject);
+
+            itemSlotUI.AddItem("Postion");
         }
     }
 

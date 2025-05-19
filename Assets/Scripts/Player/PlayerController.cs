@@ -101,11 +101,5 @@ public class PlayerController : MonoBehaviour
     public void JumpingMode(bool type)
     {
         isJumping = type;
-        Invoke("JumpReset", 10f);
-    }
-
-    void JumpReset()
-    {
-        isJumping = false;
     }
 }
