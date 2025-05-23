@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     int power;
     int damage;
 
+    PlayerAC AnimController;
     Vector3 direction;
     Vector3 ptc_loc;
 
@@ -42,6 +43,10 @@ public class PlayerController : MonoBehaviour
         {
             isStand = true;
             Debug.Log("점프가능");
+        }
+        else if (collision.gameObject.CompareTag("Box"))
+        {
+            AnimController.StartPush();
         }
     }
 
