@@ -1,15 +1,39 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ItemSlotUI : MonoBehaviour
 {
-    PlayerController playerController;
-    public GameObject[] buffUI;
-    public int slotIndex = 0;
+    public GameObject[] buffUIs;
+    public GameObject[] curtItems;
+    int slotIndex;
 
     void Start()
     {
-        playerController = FindAnyObjectByType<PlayerController>();
+        curtItems = new GameObject[transform.childCount];
+    }
+
+    void Update()
+    {
+        int num = -1;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            num = 0;
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            num = 1;
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+            num = 2;
+
+        if (num != -1)
+        {
+            GameObject curtItem = curtItems[num];
+            if (curtItem != null)
+            {
+                BuffUI buff = curtItem.GetComponent<BuffUI>();
+                if (buff.IsBuffOn() == false)
+                    buff.StartBuff();
+            }
+        }
     }
 
     public void AddItem(string itemName)
@@ -18,16 +42,36 @@ public class ItemSlotUI : MonoBehaviour
         {
             for (int i = 0; i < transform.childCount; i++)
             {
-                BuffUI buff = buffUI[i].GetComponent<BuffUI>();
-                if (buff.buffName == itemName)
+                if (curtItems[i] == null)
                 {
-                    Instantiate(buff, transform.GetChild(i));
-                    
+                    foreach(GameObject buffUI in buffUIs)
+                    {
+                        if (buffUI.GetComponent<BuffUI>().buffName == itemName)
+                        {
+                            GameObject inst = Instantiate(buffUI, transform.GetChild(i));
+                            inst.GetComponent<BuffUI>().Initialize(this);
+                            curtItems[i] = inst;
+                        }
+                    }
+
+                    slotIndex++;
+                    break;
                 }
-                slotIndex++;
             }
         }
         else
             Debug.Log($"버프 가능 개수가 최대이므로 {itemName} 버프를 얻지 못했습니다.");
+    }
+
+    public void RemoveItem(GameObject item)
+    { 
+        for(int i = 0; i < curtItems.Length; i++)
+        {
+            if (curtItems[i] == item)
+            {
+                curtItems[i] = null;
+                break;
+            }
+        }
     }
 }

@@ -46,19 +46,9 @@ public class ReadmeEditor : Editor {
 	static Readme SelectReadme() 
 	{
 		var ids = AssetDatabase.FindAssets("Readme t:Readme");
-		if (ids.Length == 1)
-		{
-			var readmeObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(ids[0]));
-			
-			Selection.objects = new UnityEngine.Object[]{readmeObject};
-			
-			return (Readme)readmeObject;
-		}
-		else
-		{
+		if (ids.Length != 1)
 			Debug.Log("Couldn't find a readme");
-			return null;
-		}
+		return null;
 	}
 	
 	protected override void OnHeaderGUI()

@@ -4,12 +4,12 @@ using TMPro;
 
 public class FallCheck : MonoBehaviour
 {
-    public int boxCount;
-    public float bc_Time;
+    int boxCount;
+    float bc_Time;
     bool gameOver;
     bool gameClear;
 
-    public Text gameTime;
+    public TextMeshProUGUI gameTime;
     string gameTimeText;
 
     public TextMeshProUGUI fallinBoxTMP;
@@ -21,26 +21,26 @@ public class FallCheck : MonoBehaviour
     public GameObject endTime_ui;
     public GameObject newRecord_ui;
 
+    PlayerController playerController;
+
     void Start()
     {
         restart_ui.SetActive(false); // SafeCode
         success_ui.SetActive(false); // SafeCode
 
         finishBoxCount = finishBoxes.transform.childCount;
-
+        playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
     }
 
     void Update()
     {
-        if (endTime_ui == null)
-            Debug.Log("Null");
-
-        if (!gameOver & Gamemode.sgtn.IsStart() & Gamemode.sgtn.IsEndGame() == false)
+        if (!gameOver && Gamemode.sgtn.IsStart())
         {
-            bc_Time += Time.deltaTime;
+            if (Gamemode.sgtn.IsEndGame() == false)
+                bc_Time += Time.deltaTime;
 
             gameTimeText = bc_Time.ToString("F2"); // string foramt: "Fn" -> 0.00... (deciaml point * n)
-            gameTime.text = "Time: " + gameTimeText;
+            gameTime.text = "시간: " + gameTimeText;
 
             fallinBoxTMP.text = "상자: " + boxCount + " / " + finishBoxCount;
         }
@@ -65,13 +65,23 @@ public class FallCheck : MonoBehaviour
             float highScore = PlayerPrefs.GetFloat(GameInfoData.nowScene + "_HighScore", 0);
             if (bc_Time < highScore || highScore == 0)
             {
-                newRecord_ui.SetActive(true);
+                endTime_ui.SetActive(false);
                 GameInfoData.SaveTimeData(bc_Time);
                 TextMeshProUGUI tmp = newRecord_ui.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-                tmp.text += bc_Time.ToString("F2");
-                endTime_ui.SetActive(false);
+                tmp.text = "신기록: " + bc_Time.ToString("F2") + "초";
+                newRecord_ui.SetActive(true);
             }
         }
+    }
+
+    void GameClear()
+    {
+        gameClear = true;
+        success_ui.SetActive(true);
+        endTime_ui.GetComponent<TextMeshProUGUI>().text = "걸린 시간: " + gameTimeText + "초";
+        Gamemode.sgtn.GameEnd();
+
+        playerController.GameClear();
     }
 
     void GameOver()
@@ -79,14 +89,7 @@ public class FallCheck : MonoBehaviour
         gameOver = true;
         restart_ui.SetActive(true);
         Gamemode.sgtn.GameEnd();
-    }
 
-    void GameClear()
-    {
-        gameClear = true;
-        success_ui.SetActive(true);
-        endTime_ui.GetComponent<TextMeshProUGUI>().text = gameTimeText;
-
-        Gamemode.sgtn.GameEnd();
+        playerController.GameOver();
     }
 }

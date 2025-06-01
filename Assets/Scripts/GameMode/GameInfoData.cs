@@ -3,7 +3,21 @@ using UnityEngine.SceneManagement;
 
 public class GameInfoData : MonoBehaviour
 {
+    public static GameInfoData sgtn;
+
     public static string nowScene;
+
+    void Awake()
+    {
+        if (sgtn == null)
+        {
+            sgtn = this;
+
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+            Destroy(gameObject);
+    }
 
     void Start()
     {
@@ -25,5 +39,10 @@ public class GameInfoData : MonoBehaviour
     public static void ResetTimeData()
     {
         PlayerPrefs.DeleteKey(nowScene + "_HighScore");
+    }
+
+    public static void LoadMainMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }

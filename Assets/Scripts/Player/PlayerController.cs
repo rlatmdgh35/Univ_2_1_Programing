@@ -8,26 +8,42 @@ public class PlayerController : MonoBehaviour
     public int jumpValue;
     bool isJumping;
     bool isStand;
-    int power;
-    int damage;
+    float pushValue;
+    int groundOverlapCount = 0;
+    int boxOverlapCount = 0;
 
-    PlayerAC AnimController;
+    Animator animator;
+    Rigidbody rigid;
     Vector3 direction;
     Vector3 ptc_loc;
 
-    void Update()
+    void Start()
     {
-        // Move();
-        if (Gamemode.sgtn.IsStart() & Gamemode.sgtn.IsEndGame() == false)
+        animator = GetComponent<Animator>();
+        rigid = GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        if (Gamemode.sgtn.IsStart() && Gamemode.sgtn.IsEndGame() == false)
         {
-            Move2();
+            Move();
 
             if (Input.GetKeyDown(KeyCode.Space) && isJumping && isStand)
             {
                 isStand = false;
+                animator.SetBool("IsJump", true);
                 GetComponent<Rigidbody>().AddForce(Vector3.up * jumpValue, ForceMode.Impulse);
             }
         }
+        else // Game Not Start or Game End
+        {
+            ptc_move.Stop();
+            animator.SetBool("IsRun", false);
+        }
+
+        pushValue = Mathf.Clamp(pushValue, 0f, 1f);
+        animator.SetFloat("PushValue", pushValue);
     }
 
     void LateUpdate()
@@ -41,70 +57,102 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isStand = true;
-            Debug.Log("점프가능");
+            if (groundOverlapCount == 0)
+            {
+
+                isStand = true;
+                animator.SetBool("IsJump", false);
+            }
+            groundOverlapCount++;
         }
         else if (collision.gameObject.CompareTag("Box"))
         {
-            AnimController.StartPush();
+            if (boxOverlapCount == 0)
+                animator.SetBool("IsPush", true);
+            boxOverlapCount++;
         }
     }
 
-    /*
-    void Move()
+    void OnCollisionExit(Collision collision)
     {
-        if (Input.GetKey(KeyCode.W))
+        if (collision.gameObject.CompareTag("Ground"))
         {
-            transform.Translate(Vector3.forward * speed * Time.deltaTime);
+            groundOverlapCount--;
+
+            if (groundOverlapCount <= 0)
+                isStand = false;
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (collision.gameObject.CompareTag("Box"))
         {
-            transform.Translate(Vector3.back * speed * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            transform.Translate(Vector3.left * speed * Time.deltaTime);   
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            transform.Translate(Vector3.right * speed * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.Q))
-        {
-            transform.Translate(Vector3.down * speed * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
+            boxOverlapCount--;
+
+            if (boxOverlapCount <= 0)
+                animator.SetBool("IsPush", false);
         }
     }
-    */
 
-    void Move2()
+    void Move()
     {
         if (Input.GetKey(KeyCode.W) ||
             Input.GetKey(KeyCode.S) ||
             Input.GetKey(KeyCode.A) ||
             Input.GetKey(KeyCode.D))
         {
-            if (!ptc_move.isPlaying)
-            {
-                ptc_move.Play();
-                
-            }
-
-            float z = Input.GetAxisRaw("Vertical");
             float x = Input.GetAxisRaw("Horizontal");
-            direction = z * Vector3.forward + x * Vector3.right;
+            float z = Input.GetAxisRaw("Vertical");
+            direction = new Vector3(x, 0f, z).normalized;
 
-            transform.rotation = Quaternion.LookRotation(direction);
-            transform.Translate(Vector3.forward * speed * Time.deltaTime);
+            if (direction != Vector3.zero)
+            {
+                if (!ptc_move.isPlaying)
+                    ptc_move.Play();
 
+                Quaternion rot = Quaternion.LookRotation(direction, Vector3.up);
+                rigid.MoveRotation(rot);
+
+                Vector3 loc = rigid.position + direction * speed * Time.deltaTime;
+                rigid.MovePosition(loc);
+
+                if (isStand)
+                {
+                    animator.SetBool("IsRun", true);
+                    pushValue += Time.deltaTime * 10f;
+                }
+                else
+                {
+                    animator.SetBool("IsRun", false);
+                    pushValue -= Time.deltaTime * 10f;
+                }
+            }
         }
+        else
+        {
+            animator.SetBool("IsRun", false);
+            pushValue -= Time.deltaTime * 2f;
+        }
+    }
+
+    public void StrongMode(bool type)
+    {
+        if (type)
+            rigid.mass = 10f;
+        else
+            rigid.mass = 1f;
     }
 
     public void JumpingMode(bool type)
     {
         isJumping = type;
+    }
+
+    public void GameOver()
+    {
+        Destroy(rigid);
+        animator.SetBool("IsDead", true);
+    }
+
+    public void GameClear()
+    {
+        Destroy(rigid);
     }
 }

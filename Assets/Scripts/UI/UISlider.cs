@@ -17,7 +17,10 @@ public class UISlider : MonoBehaviour
 
         SetActive(0, true);
         leftButton.SetActive(false);
-        gameStartButton.SetActive(false);
+        if (maxPageCount == 1)
+            rightButton.SetActive(false);
+        else
+            gameStartButton.SetActive(false);
     }
 
     public void ChangePage(bool direction) // ( direction == 0 ): left, ( direction == 1 ): right,
@@ -48,6 +51,11 @@ public class UISlider : MonoBehaviour
                 gameStartButton.SetActive(true);
                 sawEndPage = true;
             }
+        }
+        else
+        {
+            leftButton.SetActive(true);
+            rightButton.SetActive(true);
         }
     }
 

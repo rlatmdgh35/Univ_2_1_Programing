@@ -252,8 +252,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2b69a2ea9b79a84bb9acafb35d2479a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 0}
   itemSlotUI: {fileID: 0}
+  buffType: 
 --- !u!136 &3407823355704401821
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -341,7 +341,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c5d81214b2af0493082fef7a9ef0dca2, type: 2}
+  - {fileID: 2100000, guid: ec15a7f470319407ba348eb79f6879fe, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
